@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<head>	
+	<script type="text/javascript" src="js/crafty.js"></script>
+</head>
+<body>
+  <script type="text/javascript">
+    var DISPLAY_WIDTH = 800,
+        DISPLAY_HEIGHT = 600;
+    var CELL_WIDTH = 60,
+        CELL_HEIGHT = 60;
+    var BOARD_ROWS = 5;
+    var BOARD_COLS = 5;
+
+    function initCrafty() {
+        // Initialize Crafty
+        Crafty.init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+        Crafty.c("Player", {
+            init: function() {
+                this.addComponent("2D, Canvas, Color, KeyboardEvent");
+
+                this.x = 0;
+                this.y = 0;                  
+                this.w = CELL_WIDTH;
+                this.h = CELL_HEIGHT;
+                this.color("#FFAA11");
+
+                this.bind('KeyDown', function(e) {
+                    if(e.key == Crafty.keys['LEFT_ARROW']) {
+                        this.x = this.x > CELL_WIDTH ? this.x-CELL_WIDTH : 0;
+                    } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+                        this.x = (this.x >= CELL_WIDTH*(BOARD_COLS-1)) ? CELL_WIDTH*(BOARD_COLS-1) : this.x+CELL_WIDTH;
+                    } else if (e.key == Crafty.keys['UP_ARROW']) {
+                        this.y = this.y > CELL_HEIGHT ? this.y-CELL_HEIGHT : 0;
+                    } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+                        this.y = (this.y >= CELL_HEIGHT*(BOARD_ROWS-1)) ? CELL_HEIGHT*(BOARD_ROWS-1) : this.y+CELL_HEIGHT;
+
+                    }
+                });
+            }
+        });
+
+        Crafty.c("Cell", {
+            init: function() {
+                this.addComponent("2D, Canvas, Color");
+                this.w = CELL_WIDTH;
+                this.h = CELL_HEIGHT;
+            },
+            makeCell: function(x, y, color) {
+                this.attr({x: x, y: y}).color(color);
+                return this;
+            }
+        });
+
+        Crafty.c("Board", {
+            COLORS: ["#FFF", "#000"],
+            init: function() {
+                this.addComponent("2D, Canvas, Color");
+                this.x = 0;
+                this.y = 0;                  
+                this.w = CELL_WIDTH * BOARD_COLS;
+                this.h = CELL_HEIGHT * BOARD_ROWS;
+                this.color("#000");
+                this.setupBoard(0, 0, BOARD_ROWS, BOARD_COLS, CELL_WIDTH, CELL_HEIGHT);
+            },
+            setupBoard: function(x, y, rows, cols, cw, ch) {
+                this._board = [];
+                for (var i=0; i<cols; i++) {
+                    this._board[i] = [];  
+                    for (var j=0; j<rows; j++) {
+                        var cell = Crafty.e("Cell").makeCell(x + i*cw,
+                                                             y + j*ch,
+                                                             this.COLORS[Crafty.math.randomInt(0, this.COLORS.length-1)]);
+                        this._board[i][j] = cell;
+                    }
+                }
+            }
+        });
+    }
+    window.onload = (function() {
+        initCrafty();
+        var bg = Crafty.e("Board");
+        var pl = Crafty.e("Player");
+    });
+  </script>
+</body>
+</html>
