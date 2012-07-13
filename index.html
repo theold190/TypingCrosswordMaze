@@ -32,7 +32,7 @@
                     // Can go left
                     if (this.x >= CELL_WIDTH) {
                         cell = this._board._getCell(this.x-CELL_WIDTH, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
                             this.x = this.x-STEP_WIDTH;
                             return;
                         }
@@ -40,7 +40,7 @@
                     // Can go right
                     if (this.x < CELL_WIDTH*(BOARD_COLS-1)) {
                         cell = this._board._getCell(this.x+CELL_WIDTH, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
                             this.x = this.x+STEP_WIDTH;
                             return;
                         }
@@ -48,7 +48,7 @@
                     // Can go up
                     if (this.y >= CELL_HEIGHT) {
                         cell = this._board._getCell(this.x, this.y-CELL_HEIGHT);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
                             this.y = this.y-STEP_HEIGHT;
                             return;
                         }
@@ -56,7 +56,7 @@
                     // Can go down
                     if (this.y < CELL_HEIGHT*(BOARD_ROWS-1)) {
                         cell = this._board._getCell(this.x, this.y+CELL_HEIGHT);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
                             this.y = this.y+STEP_HEIGHT;
                             return;
                         }
@@ -70,7 +70,6 @@
                         this.y = this.y >= CELL_HEIGHT ? this.y-STEP_HEIGHT : 0;
                     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
                         this.y = (this.y >= CELL_HEIGHT*(BOARD_ROWS-1)) ? CELL_HEIGHT*(BOARD_ROWS-1) : this.y+STEP_HEIGHT;
-
                     }
                 });
             },
@@ -88,14 +87,16 @@
                 this.textColor('#000000', 1);
                 this.textFont({size: '50px', family: 'Arial'});
             },
-            _makeCell: function(x, y, color, text) {
-                this.attr({x: x, y: y}).color(color).text(text);
+            _solid: 0,
+            _makeCell: function(x, y, solid, text) {
+                var COLORS = ['#FFF', '#000'];
+                this.attr({x: x, y: y}).color(COLORS[solid]).text(text);
+                this._solid = solid;
                 return this;
             }
         });
 
         Crafty.c("Board", {
-            COLORS: ["#FFF", "#000"],
             //COLORS: ["#FFF"],
             LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
             //LETTERS: ["A"],
@@ -114,7 +115,7 @@
                     for (var j=0; j<rows; j++) {
                         var cell = Crafty.e("Cell")._makeCell(x + i*cw,
                                                              y + j*ch,
-                                                             Crafty.math.randomElementOfArray(this.COLORS),
+                                                             Crafty.math.randomElementOfArray([0, 1]),
                                                              Crafty.math.randomElementOfArray(this.LETTERS));
                         this._board[i][j] = cell;
                     }
