@@ -50,6 +50,7 @@ Crafty.c("Game", {
     _startGame: function(totalGames) {
         this._currentGame = 0;
         this._mistakes = 0;
+        this._golden = 0;
         this._totalGames = totalGames;
 
         this._clearAll();
@@ -91,12 +92,15 @@ Crafty.c("Game", {
             if (game._isGameComplete()) {
                 var screen = Crafty.e("FinalScreen");
                 screen._setStatistics(
-                    {totalGames: game._totalGames, mistakes: game._mistakes});
+                    {mistakes: game._mistakes, golden: game._golden});
             } else {
                 var screen = Crafty.e("IntermediateScreen");
                 screen._setStatistics(
                     {currentGame: game._currentGame, totalGames: game._totalGames});
             }
+        } else if (cell._type == CELL_TYPE_GOLDEN) {
+            game._golden++;
+            cell._makeCell(cell.x, cell.y, CELL_TYPE_LETTER, cell.text);
         }
     },
     _isGameComplete: function() {

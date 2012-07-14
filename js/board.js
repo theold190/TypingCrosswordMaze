@@ -7,9 +7,10 @@ var BOARD_LEFT = 0,
 var BOARD_WIDTH  = BOARD_COLS*CELL_WIDTH,
     BOARD_HEIGHT = BOARD_ROWS*CELL_HEIGHT;
 
-var CELL_TYPE_LETTER = 0,
+var CELL_TYPE_FINISH = 0,
     CELL_TYPE_SOLID  = 1,
-    CELL_TYPE_FINISH = 2;
+    CELL_TYPE_LETTER = 2,
+    CELL_TYPE_GOLDEN = 3;
 
 Crafty.c("Cell", {
     ready: true,
@@ -21,9 +22,16 @@ Crafty.c("Cell", {
     },
     _type: CELL_TYPE_LETTER,
     _makeCell: function(x, y, type, text) {
-        var COLORS = ['#FFF', '#000', "#00F"];
-        this.attr({x: x, y: y}).color(COLORS[type]).text(text);
+        var CELL_COLORS = ["#00F", '#000', '#FFF', "#FFF"];
+        var TEXT_COLORS = ['#000000', '#FFD700'];
+        this.attr({x: x, y: y}).color(CELL_COLORS[type]).text(text);
         this._type = type;
+
+        if (this._type == CELL_TYPE_LETTER
+            || this._type == CELL_TYPE_GOLDEN) {
+            var index = this._type - CELL_TYPE_LETTER;
+            this.textColor(TEXT_COLORS[index], 1);
+        }
         return this;
     },
     _isInsideCell: function(x, y) {
@@ -50,7 +58,7 @@ Crafty.c("Cell", {
 
 Crafty.c("Board", {
     //CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_SOLID],
-    CELL_TYPE: [CELL_TYPE_LETTER],
+    CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_GOLDEN],
     LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
     //LETTERS: ["A"],
     init: function() {

@@ -19,7 +19,10 @@ Crafty.c("Screen", {
             }
         }
         if (stats.mistakes != undefined) {
-            text += "M: "+stats.mistakes;
+            text += "M: "+stats.mistakes + " ";
+        }
+        if (stats.golden != undefined) {
+            text += "Gold: "+stats.golden;
         }
         this.text(text);
     }
