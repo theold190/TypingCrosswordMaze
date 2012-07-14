@@ -250,7 +250,7 @@
 
                 this.bind('KeyDown', function(e) {
                     if (0 && this._isNextGameKey(e.key)) {
-                        Crafty('Game')._startRound(this._totalGames);
+                        Crafty('Game')._startGame(this._totalGames);
                     }
                 });
             },
@@ -278,9 +278,11 @@
             init: function() {
                 this.addComponent("");
             },
-            _startRound: function(complete) {
-                this._complete = complete;
-
+            _startGame: function(totalGames) {
+                this._totalGames = totalGames;
+                this._startRound();
+            },
+            _startRound: function() {
                 var board = Crafty.e("Board");
                 this._setBoard(board);
 
@@ -314,7 +316,7 @@
                     } else {
                         var msg = "Congratulations ("+this._currentGame+" out of "+this._totalGames+")";
                         alert(msg);
-                        this._startRound(this._complete);
+                        this._startRound();
                     }
                 }
             },
@@ -325,7 +327,7 @@
     }
     window.onload = (function() {
         initCrafty();
-        var game = Crafty.e("Game")._startRound(2);
+        var game = Crafty.e("Game")._startGame(3);
     });
   </script>
 </body>
