@@ -8,16 +8,27 @@ Crafty.c("Screen", {
     },
     _setStatistics: function (stats) {
         var text = "";
-        if (stats.currentGame != undefined) {
-            text += "C: "+stats.currentGame+" ";
-        }
-        if (stats.totalGames != undefined) {
-            text += "G: "+stats.totalGames+" ";
+        if (stats.currentGame != undefined && stats.totalGames != undefined) {
+            text += " " + stats.currentGame + " / " + stats.totalGames;
+        } else {
+            if (stats.currentGame != undefined) {
+                text += "C: "+stats.currentGame+" ";
+            }
+            if (stats.totalGames != undefined) {
+                text += "G: "+stats.totalGames+" ";
+            }
         }
         if (stats.mistakes != undefined) {
             text += "M: "+stats.mistakes;
         }
         this.text(text);
+    }
+});
+
+Crafty.c("WelcomeScreen", {
+    init: function() {
+        this.addComponent("Screen");
+        this.text("Start!");
     }
 });
 

@@ -11,6 +11,10 @@ Crafty.c("Game", {
                     this._startRound();
                     return;
                 }
+                if (this._isGameStart()) {
+                    this._startRound();
+                    return;
+                }
             }
         });
     },
@@ -28,6 +32,14 @@ Crafty.c("Game", {
         }
         return false;
     },
+    _isGameStart: function() {
+        var screens = Crafty('WelcomeScreen');
+        var msg = "" + screens + " "+screen.length;
+        if (screens.length > 0) {
+            return true;
+        }
+        return false;
+    },
     _isNextScreenKey: function (key) {
         if (key == Crafty.keys['SPACE']
             || key == Crafty.keys['ENTER']) {
@@ -40,10 +52,11 @@ Crafty.c("Game", {
         this._mistakes = 0;
         this._totalGames = totalGames;
 
-        this._startRound();
+        this._clearAll();
+        Crafty.e("WelcomeScreen");
     },
     _startRound: function() {
-        this._endRound();
+        this._clearAll();
         var board = Crafty.e("Board");
         this._setBoard(board);
 
@@ -55,7 +68,7 @@ Crafty.c("Game", {
         player._setStartPosition(startPosition.x, startPosition.y);
         player._setUpdateCallback(this._playerUpdate);
     },
-    _endRound: function() {
+    _clearAll: function() {
         var screens = Crafty('2D');
         for (var i=0; i<screens.length; i++) {
             Crafty(screens[i]).destroy();
@@ -75,7 +88,7 @@ Crafty.c("Game", {
         if (cell._type == CELL_TYPE_FINISH) {
             game._currentGame++;
             if (game._isGameComplete()) {
-                game._endRound();
+                game._clearAll();
                 var screen = Crafty.e("FinalScreen");
                 screen._setStatistics(
                     {totalGames: game._totalGames, mistakes: game._mistakes});
