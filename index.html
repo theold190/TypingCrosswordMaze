@@ -31,10 +31,9 @@
                 this.color("#FFAA11");
 
                 this.bind('KeyDown', function(e) {
-                    if (this._navigatePlayer(e.key)) {
-                        if (this._playerUpdateContext != undefined) {
-                            this._playerUpdateContext._playerUpdate(this.x, this.y);
-                        }
+                    var moved = this._navigatePlayer(e.key);
+                    if (this._playerUpdateContext != undefined) {
+                        this._playerUpdateContext._playerUpdate(this.x, this.y, moved);
                     }
                 });
             },
@@ -275,8 +274,11 @@
             _setStatistics: function (stats) {
                 var text = "";
                 if (stats.totalGames != undefined) {
-                    text += "Total: "+stats.totalGames;
+                    text += "G: "+stats.totalGames+" ";
                     this._totalGames = stats.totalGames;
+                }
+                if (stats.mistakes != undefined) {
+                    text += "M: "+stats.mistakes;
                 }
                 this.text(text);
             },
@@ -285,6 +287,7 @@
         Crafty.c("Game", {
             _totalGames: 1,
             _currentGame:0,
+            _mistakes:0,
 
             init: function() {
                 this.addComponent("");
@@ -322,14 +325,20 @@
             _setBoard: function(board) {
                 this._board = board;
             },
-            _playerUpdate: function(x, y) {
+            _playerUpdate: function(x, y, moved) {
+                // If we haven't moved - we have make a typing mistake
+                if (moved == false) {
+                    this._mistakes++;
+                    return;
+                }
                 var cell = this._board._getCell(x, y);
                 if (cell._type == CELL_TYPE_FINISH) {
                     this._currentGame++;
                     if (this._isGameComplete()) {
                         this._endRound();
                         var finalScreen = Crafty.e("FinalScreen");
-                        finalScreen._setStatistics({totalGames: this._totalGames});
+                        finalScreen._setStatistics(
+                            {totalGames: this._totalGames, mistakes: this._mistakes});
                     } else {
                         var msg = "Congratulations ("+this._currentGame+" out of "+this._totalGames+")";
                         alert(msg);
