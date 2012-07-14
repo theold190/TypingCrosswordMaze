@@ -24,24 +24,6 @@
         // Initialize Crafty
         Crafty.init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-        Crafty.c("Game", {
-            init: function() {
-                this.addComponent("");
-            },
-            _setPlayer: function(player) {
-                this._player = player;
-            },
-            _setBoard: function(board) {
-                this._board = board;
-            },
-            _playerUpdate: function(x, y) {
-                var cell = this._board._getCell(x, y);
-                if (cell._type == CELL_TYPE_FINISH) {
-                    alert("Congratulations!");
-                }
-            }
-        });
-
         Crafty.c("Player", {
             init: function() {
                 this.addComponent("2D, Canvas, Color, KeyboardEvent");
@@ -50,8 +32,8 @@
 
                 this.bind('KeyDown', function(e) {
                     if (this._navigatePlayer(e.key)) {
-                        if (this._playerUpdateCallback != undefined) {
-                            this._playerUpdateCallback(this.x, this.y);
+                        if (this._playerUpdateContext != undefined) {
+                            this._playerUpdateContext._playerUpdate(this.x, this.y);
                         }
                     }
                 });
@@ -105,8 +87,11 @@
                 this._board = board;
                 return this;
             },
-            _setUpdateCallback: function(callback) {
+            _setUpdateCallback: function(callback, context) {
+                // We need to run callback in game's context, so for now 
+                // have this solution
                 this._playerUpdateCallback = callback;
+                this._playerUpdateContext = context;
             },
             _setStartPosition: function(x, y) {
                 this.attr({x: x, y: y});
@@ -158,8 +143,7 @@
             ready: true,
             init: function() {
                 this.addComponent("2D, Canvas, Color, Text");
-                this.w = CELL_WIDTH;
-                this.h = CELL_HEIGHT;
+                this.attr({w:CELL_WIDTH, h:CELL_HEIGHT});
                 this.textColor('#000000', 1);
                 this.textFont({size: '50px', family: 'Arial'});
             },
@@ -193,16 +177,14 @@
         });
 
         Crafty.c("Board", {
-            CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_SOLID],
+            //CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_SOLID],
+            CELL_TYPE: [CELL_TYPE_LETTER],
             LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
             //LETTERS: ["A"],
             init: function() {
                 this.addComponent("2D, Canvas");
-                this.x = BOARD_LEFT;
-                this.y = BOARD_TOP;
-                this.w = BOARD_WIDTH;
-                this.h = BOARD_HEIGHT;
-                this._setupBoard(0, 0, BOARD_ROWS, BOARD_COLS, CELL_WIDTH, CELL_HEIGHT);
+                this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:BOARD_WIDTH, h:BOARD_HEIGHT});
+                this._setupBoard(this.x, this.y, BOARD_ROWS, BOARD_COLS, CELL_WIDTH, CELL_HEIGHT);
             },
             _setupBoard: function(x, y, rows, cols, cw, ch) {
                 this._board = [];
@@ -255,19 +237,95 @@
                 return this._getCell(x+CELL_WIDTH, y);
             }
         });
+
+        Crafty.c("FinalScreen", {
+            init: function() {
+                this.addComponent("2D, Canvas, Color, Text");
+                this.attr({w:BOARD_WIDTH, h:BOARD_HEIGHT});
+                this.color('#000000');
+                this.textColor('#FFFFFF', 1);
+                this.textFont({size: '50px', family: 'Arial'});
+                this.text("Completed!");
+                this._totalGames = 1;
+
+                this.bind('KeyDown', function(e) {
+                    if (0 && this._isNextGameKey(e.key)) {
+                        Crafty('Game')._startRound(this._totalGames);
+                    }
+                });
+            },
+            _isNextGameKey: function (key) {
+                if (key == Crafty.keys['SPACE']
+                    || key == Crafty.keys['ENTER']) {
+                    return true;
+                }
+                return false;
+            },
+            _setStatistics: function (stats) {
+                var text = "";
+                if (stats.totalGames != undefined) {
+                    text += "Total: "+stats.totalGames;
+                    this._totalGames = stats.totalGames;
+                }
+                this.text(text);
+            },
+        });
+
+        Crafty.c("Game", {
+            _totalGames: 1,
+            _currentGame:0,
+
+            init: function() {
+                this.addComponent("");
+            },
+            _startRound: function(complete) {
+                this._complete = complete;
+
+                var board = Crafty.e("Board");
+                this._setBoard(board);
+
+                var finishPosition = board._getRandomCell();
+                finishPosition._makeCell(finishPosition.x, finishPosition.y, CELL_TYPE_FINISH, " ");
+                var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
+
+                var player = Crafty.e("Player")._setBoard(board);
+                player._setStartPosition(startPosition.x, startPosition.y);
+                player._setUpdateCallback(this._playerUpdate, this);
+                this._setPlayer(player);
+            },
+            _endRound: function() {
+                if (this._board) {this._board.destroy();}
+                if (this._player) {this._player.destroy();}
+            },
+            _setPlayer: function(player) {
+                this._player = player;
+            },
+            _setBoard: function(board) {
+                this._board = board;
+            },
+            _playerUpdate: function(x, y) {
+                var cell = this._board._getCell(x, y);
+                if (cell._type == CELL_TYPE_FINISH) {
+                    this._currentGame++;
+                    this._endRound();
+                    if (this._isGameComplete()) {
+                        var finalScreen = Crafty.e("FinalScreen");
+                        finalScreen._setStatistics({totalGames: this._totalGames});
+                    } else {
+                        var msg = "Congratulations ("+this._currentGame+" out of "+this._totalGames+")";
+                        alert(msg);
+                        this._startRound(this._complete);
+                    }
+                }
+            },
+            _isGameComplete: function() {
+                return this._totalGames <= this._currentGame;
+            }
+        });
     }
     window.onload = (function() {
         initCrafty();
-        var game = Crafty.e("Game");
-
-        var board = Crafty.e("Board");
-        game._setBoard(board);
-
-        var finishPosition = board._getRandomCell();
-        finishPosition._makeCell(finishPosition.x, finishPosition.y, CELL_TYPE_FINISH, " ");
-        var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
-
-        var pl = Crafty.e("Player")._setBoard(board)._setStartPosition(startPosition.x, startPosition.y)._setUpdateCallback(game._playerUpdate);
+        var game = Crafty.e("Game")._startRound(2);
     });
   </script>
 </body>
