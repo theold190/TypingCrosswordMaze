@@ -32,8 +32,8 @@
 
                 this.bind('KeyDown', function(e) {
                     var moved = this._navigatePlayer(e.key);
-                    if (this._playerUpdateContext != undefined) {
-                        this._playerUpdateContext._playerUpdate(this.x, this.y, moved);
+                    if (this._playerUpdateCallback != undefined) {
+                        this._playerUpdateCallback(this.x, this.y, moved);
                     }
                 });
             },
@@ -86,11 +86,8 @@
                 this._board = board;
                 return this;
             },
-            _setUpdateCallback: function(callback, context) {
-                // We need to run callback in game's context, so for now
-                // have this solution
+            _setUpdateCallback: function(callback) {
                 this._playerUpdateCallback = callback;
-                this._playerUpdateContext = context;
             },
             _setStartPosition: function(x, y) {
                 this.attr({x: x, y: y});
@@ -198,17 +195,6 @@
                     }
                 }
             },
-            _clearBoard: function() {
-                var cols = this._board.length;
-                var rows = this._board[0].length;
-                for (var i=0; i<cols; i++) {
-                    for (var j=0; j<rows; j++) {
-                        if (this._board[i][j] != undefined) {
-                            this._board[i][j].destroy();
-                        }
-                    }
-                }
-            },
             _getRandomCell: function(type) {
                 var cols = this._board.length;
                 var rows = this._board[0].length;
@@ -248,48 +234,83 @@
             }
         });
 
-        Crafty.c("FinalScreen", {
+        Crafty.c("Screen", {
             init: function() {
                 this.addComponent("2D, Canvas, Color, Text");
                 this.attr({w:BOARD_WIDTH, h:BOARD_HEIGHT});
                 this.color('#000000');
                 this.textColor('#FFFFFF', 1);
                 this.textFont({size: '50px', family: 'Arial'});
-                this.text("Completed!");
-                this._totalGames = 1;
-
-                this.bind('KeyDown', function(e) {
-                    if (this._isNextGameKey(e.key)) {
-                        Crafty('Game')._startGame(this._totalGames);
-                    }
-                });
-            },
-            _isNextGameKey: function (key) {
-                if (key == Crafty.keys['SPACE']
-                    || key == Crafty.keys['ENTER']) {
-                    return true;
-                }
-                return false;
+                this.text("");
             },
             _setStatistics: function (stats) {
                 var text = "";
+                if (stats.currentGame != undefined) {
+                    text += "C: "+stats.currentGame+" ";
+                }
                 if (stats.totalGames != undefined) {
                     text += "G: "+stats.totalGames+" ";
-                    this._totalGames = stats.totalGames;
                 }
                 if (stats.mistakes != undefined) {
                     text += "M: "+stats.mistakes;
                 }
                 this.text(text);
+            }
+        });
+
+        Crafty.c("IntermediateScreen", {
+            init: function() {
+                this.addComponent("Screen");
+                this.text("Done!");
+            }
+        });
+
+        Crafty.c("FinalScreen", {
+            init: function() {
+                this.addComponent("Screen");
+                this.text("Completed!");
+                this._totalGames = 1;
             },
         });
 
         Crafty.c("Game", {
             init: function() {
                 this.addComponent("");
+                this.bind('KeyDown', function(e) {
+                    if (this._isNextScreenKey(e.key)) {
+                        if (this._isGameEnded()) {
+                            this._startGame(this._totalGames);
+                            return;
+                        }
+                        if (this._isRoundEnded()) {
+                            this._startRound();
+                            return;
+                        }
+                    }
+                });
+            },
+            _isGameEnded: function() {
+                var screens = Crafty('FinalScreen');
+                if (screens.length > 0) {
+                    return true;
+                }
+                return false;
+            },
+            _isRoundEnded: function() {
+                var screens = Crafty('IntermediateScreen');
+                if (screens.length > 0) {
+                    return true;
+                }
+                return false;
+            },
+            _isNextScreenKey: function (key) {
+                if (key == Crafty.keys['SPACE']
+                    || key == Crafty.keys['ENTER']) {
+                    return true;
+                }
+                return false;
             },
             _startGame: function(totalGames) {
-                this._totalGames = 1;
                 this._currentGame = 0;
                 this._mistakes = 0;
                 this._totalGames = totalGames;
@@ -310,16 +331,9 @@
                 this._setPlayer(player);
             },
             _endRound: function() {
-                if (this._board) {
-                    this._board._clearBoard();
-                    this._board.destroy();
-                }
-                if (this._player) {
-                    this._player.destroy();
-                }
-                var finalScreen = Crafty("FinalScreen").length ? Crafty("FinalScreen")[0] : undefined;
-                if (finalScreen != undefined) {
-                    Crafty(finalScreen).destroy();
+                var screens = Crafty('2D');
+                for (var i=0; i<screens.length; i++) {
+                    Crafty(screens[i]).destroy();
                 }
             },
             _setPlayer: function(player) {
@@ -330,24 +344,23 @@
             },
             _playerUpdate: function(x, y, moved) {
                 // If we haven't moved - we have make a typing mistake
+                var game = Crafty(Crafty('Game')[0]);
                 if (moved == false) {
-                    this._mistakes++;
+                    game._mistakes++;
                     return;
                 }
-                var cell = this._board._getCell(x, y);
+                var cell = game._board._getCell(x, y);
                 if (cell._type == CELL_TYPE_FINISH) {
-                    this._currentGame++;
-                    if (this._isGameComplete()) {
-                        this._endRound();
-                        var finalScreen = Crafty.e("FinalScreen");
-                        finalScreen._setStatistics(
-                            {totalGames: this._totalGames, mistakes: this._mistakes});
+                    game._currentGame++;
+                    if (game._isGameComplete()) {
+                        game._endRound();
+                        var screen = Crafty.e("FinalScreen");
+                        screen._setStatistics(
+                            {totalGames: game._totalGames, mistakes: game._mistakes});
                     } else {
-                        var msg = "Congratulations " + this._currentGame + " out of " + this._totalGames
-                                + ", with " + (this._mistakes==0?"no mistakes!!!" : (this._mistakes + " mistake"
-                                + (this._mistakes==1 ? "" : "s")));
-                        alert(msg);
-                        this._startRound();
+                        var screen = Crafty.e("IntermediateScreen");
+                        screen._setStatistics(
+                            {currentGame: game._currentGame, totalGames: game._totalGames, mistakes: game._mistakes});
                     }
                 }
             },
