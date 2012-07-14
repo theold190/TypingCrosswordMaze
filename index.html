@@ -6,12 +6,16 @@
   <script type="text/javascript">
     var DISPLAY_WIDTH = 400,
         DISPLAY_HEIGHT = 400;
-    var CELL_WIDTH = 60,
+    var CELL_WIDTH  = 60,
         CELL_HEIGHT = 60;
-    var STEP_WIDTH = 60,
+    var STEP_WIDTH  = 60,
         STEP_HEIGHT = 60;
-    var BOARD_ROWS = 5;
-    var BOARD_COLS = 5;
+    var BOARD_ROWS = 5,
+        BOARD_COLS = 5;
+    var BOARD_LEFT = 0,
+        BOARD_TOP  = 0;
+    var BOARD_WIDTH  = BOARD_COLS*STEP_WIDTH,
+        BOARD_HEIGHT = BOARD_ROWS*STEP_HEIGHT;
 
     function initCrafty() {
         // Initialize Crafty
@@ -28,53 +32,88 @@
                 this.color("#FFAA11");
 
                 this.bind('KeyDown', function(e) {
-                    var cell = this._board._getCell(this.x, this.y);
-                    // Can go left
-                    if (this.x >= CELL_WIDTH) {
-                        cell = this._board._getCell(this.x-CELL_WIDTH, this.y);
-                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
-                            this.x = this.x-STEP_WIDTH;
+                    if (this._canGoLeft()) {
+                        var cell = this._board._getCellOnLeft(this.x, this.y);
+                        if(e.key == Crafty.keys[cell._text]) {
+                            this._goLeft();
                             return;
                         }
                     }
-                    // Can go right
-                    if (this.x < CELL_WIDTH*(BOARD_COLS-1)) {
-                        cell = this._board._getCell(this.x+CELL_WIDTH, this.y);
-                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
-                            this.x = this.x+STEP_WIDTH;
+                    if (this._canGoRight()) {
+                        var cell = this._board._getCellOnRight(this.x, this.y);
+                        if(e.key == Crafty.keys[cell._text]) {
+                            this._goRight();
                             return;
                         }
                     }
-                    // Can go up
-                    if (this.y >= CELL_HEIGHT) {
-                        cell = this._board._getCell(this.x, this.y-CELL_HEIGHT);
-                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
-                            this.y = this.y-STEP_HEIGHT;
+                    if (this._canGoUp()) {
+                        var cell = this._board._getCellOnTop(this.x, this.y);
+                        if(e.key == Crafty.keys[cell._text]) {
+                            this._goUp();
                             return;
                         }
                     }
-                    // Can go down
-                    if (this.y < CELL_HEIGHT*(BOARD_ROWS-1)) {
-                        cell = this._board._getCell(this.x, this.y+CELL_HEIGHT);
-                        if(!cell._solid && e.key == Crafty.keys[cell._text]) {
-                            this.y = this.y+STEP_HEIGHT;
+                    if (this._canGoDown()) {
+                        var cell = this._board._getCellOnBottom(this.x, this.y);
+                        if(e.key == Crafty.keys[cell._text]) {
+                            this._goDown();
                             return;
                         }
                     }
 
                     if(e.key == Crafty.keys['LEFT_ARROW']) {
-                        this.x = this.x >= CELL_WIDTH ? this.x-STEP_WIDTH : 0;
+                        this._goLeft();
                     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-                        this.x = (this.x >= CELL_WIDTH*(BOARD_COLS-1)) ? CELL_WIDTH*(BOARD_COLS-1) : this.x+STEP_WIDTH;
+                        this._goRight();
                     } else if (e.key == Crafty.keys['UP_ARROW']) {
-                        this.y = this.y >= CELL_HEIGHT ? this.y-STEP_HEIGHT : 0;
+                        this._goUp();
                     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-                        this.y = (this.y >= CELL_HEIGHT*(BOARD_ROWS-1)) ? CELL_HEIGHT*(BOARD_ROWS-1) : this.y+STEP_HEIGHT;
+                        this._goDown();
                     }
                 });
             },
             setBoard: function(board) {
                 this._board = board;
+            },
+            _canGoUp: function() {
+                var cell = this._board._getCellOnTop(this.x, this.y);
+                if (cell == undefined || cell._solid) {
+                    return false;
+                }
+                return true;
+            },
+            _canGoDown: function() {
+                var cell = this._board._getCellOnBottom(this.x, this.y);
+                if (cell == undefined || cell._solid) {
+                    return false;
+                }
+                return true;
+            },
+            _canGoLeft: function() {
+                var cell = this._board._getCellOnLeft(this.x, this.y);
+                if (cell == undefined || cell._solid) {
+                    return false;
+                }
+                return true;
+            },
+            _canGoRight: function() {
+                var cell = this._board._getCellOnRight(this.x, this.y);
+                if (cell == undefined || cell._solid) {
+                    return false;
+                }
+                return true;
+            },
+            _goUp: function () {
+                if(this._canGoUp()) {this.y = this.y - STEP_HEIGHT;}
+            },
+            _goDown: function () {
+                if(this._canGoDown()) {this.y = this.y + STEP_HEIGHT;}
+            },
+            _goLeft: function () {
+                if(this._canGoLeft()) {this.x = this.x - STEP_WIDTH;}
+            },
+            _goRight: function () {
+                if(this._canGoRight()) {this.x = this.x + STEP_WIDTH;}
             }
         });
 
@@ -93,19 +132,27 @@
                 this.attr({x: x, y: y}).color(COLORS[solid]).text(text);
                 this._solid = solid;
                 return this;
+            },
+            _isInsideCell: function(x, y) {
+                if (this.x <= x && this.x+this.w > x) {
+                    if (this.y <= y && this.y+this.h > y) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
 
         Crafty.c("Board", {
-            //COLORS: ["#FFF"],
+            SOLID: [0, 1],
             LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
             //LETTERS: ["A"],
             init: function() {
                 this.addComponent("2D, Canvas");
-                this.x = 0;
-                this.y = 0;
-                this.w = CELL_WIDTH * BOARD_COLS;
-                this.h = CELL_HEIGHT * BOARD_ROWS;
+                this.x = BOARD_LEFT;
+                this.y = BOARD_TOP;
+                this.w = BOARD_WIDTH;
+                this.h = BOARD_HEIGHT;
                 this._setupBoard(0, 0, BOARD_ROWS, BOARD_COLS, CELL_WIDTH, CELL_HEIGHT);
             },
             _setupBoard: function(x, y, rows, cols, cw, ch) {
@@ -115,7 +162,7 @@
                     for (var j=0; j<rows; j++) {
                         var cell = Crafty.e("Cell")._makeCell(x + i*cw,
                                                              y + j*ch,
-                                                             Crafty.math.randomElementOfArray([0, 1]),
+                                                             Crafty.math.randomElementOfArray(this.SOLID),
                                                              Crafty.math.randomElementOfArray(this.LETTERS));
                         this._board[i][j] = cell;
                     }
@@ -123,19 +170,27 @@
             },
             _getCell: function(x, y) {
                 var cols = this._board.length;
-                var rows = this._board.length;
+                var rows = this._board[0].length;
 
                 for (var i=0; i<cols; i++) {
                     for (var j=0; j<rows; j++) {
-                        if (this._board[i][j].x <= x
-                            && this._board[i][j].x+CELL_WIDTH > x) {
-                            if (this._board[i][j].y <= y
-                                && this._board[i][j].y+CELL_HEIGHT > y) {
-                                    return this._board[i][j];
-                                }
+                        if(this._board[i][j]._isInsideCell(x,y)) {
+                            return this._board[i][j];
                         }
                     }
                 }
+            },
+            _getCellOnTop: function(x, y) {
+                return this._getCell(x, y-CELL_HEIGHT);
+            },
+            _getCellOnBottom: function(x, y) {
+                return this._getCell(x, y+CELL_HEIGHT);
+            },
+            _getCellOnLeft: function(x, y) {
+                return this._getCell(x-CELL_WIDTH, y);
+            },
+            _getCellOnRight: function(x, y) {
+                return this._getCell(x+CELL_WIDTH, y);
             }
         });
     }
