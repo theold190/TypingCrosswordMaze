@@ -259,7 +259,7 @@
                 this._totalGames = 1;
 
                 this.bind('KeyDown', function(e) {
-                    if (0 && this._isNextGameKey(e.key)) {
+                    if (this._isNextGameKey(e.key)) {
                         Crafty('Game')._startGame(this._totalGames);
                     }
                 });
@@ -285,14 +285,13 @@
         });
 
         Crafty.c("Game", {
-            _totalGames: 1,
-            _currentGame:0,
-            _mistakes:0,
-
             init: function() {
                 this.addComponent("");
             },
             _startGame: function(totalGames) {
+                this._totalGames = 1;
+                this._currentGame = 0;
+                this._mistakes = 0;
                 this._totalGames = totalGames;
                 this._startRound();
             },
@@ -318,6 +317,10 @@
                 if (this._player) {
                     this._player.destroy();
                 }
+                var finalScreen = Crafty("FinalScreen").length ? Crafty("FinalScreen")[0] : undefined;
+                if (finalScreen != undefined) {
+                    Crafty(finalScreen).destroy();
+                }
             },
             _setPlayer: function(player) {
                 this._player = player;
@@ -340,7 +343,9 @@
                         finalScreen._setStatistics(
                             {totalGames: this._totalGames, mistakes: this._mistakes});
                     } else {
-                        var msg = "Congratulations ("+this._currentGame+" out of "+this._totalGames+")";
+                        var msg = "Congratulations " + this._currentGame + " out of " + this._totalGames
+                                + ", with " + (this._mistakes==0?"no mistakes!!!" : (this._mistakes + " mistake"
+                                + (this._mistakes==1 ? "" : "s")));
                         alert(msg);
                         this._startRound();
                     }
