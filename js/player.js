@@ -1,10 +1,11 @@
+var PLAYER_ZORDER = 1;
 var STEP_WIDTH  = CELL_WIDTH,
     STEP_HEIGHT = CELL_HEIGHT;
 
 Crafty.c("Player", {
     init: function() {
         this.addComponent("2D, Canvas, Color, KeyboardEvent");
-        this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:CELL_WIDTH, h:CELL_HEIGHT});
+        this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:CELL_WIDTH, h:CELL_HEIGHT, z: PLAYER_ZORDER});
         this.color("#FFAA11");
 
         this.bind('KeyDown', function(e) {

@@ -1,6 +1,8 @@
 var NUMBER_GAMES = 3;
-var SCORE_COLDEN = 1,
-    SCORE_MISTAKE = -5;
+
+var SCORE_COLDEN  = 1,
+    SCORE_MISTAKE = -5,
+    SCORE_DAMAGE  = -2;
 
 Crafty.c("Game", {
     init: function() {
@@ -53,9 +55,10 @@ Crafty.c("Game", {
     },
     _startGame: function(totalGames) {
         this._currentGame = 0;
+        this._totalGames = totalGames;
         this._mistakes = 0;
         this._golden = 0;
-        this._totalGames = totalGames;
+        this._damage = 0;
 
         this._clearAll();
         Crafty.e("WelcomeScreen");
@@ -96,7 +99,9 @@ Crafty.c("Game", {
             game._clearAll();
             if (game._isGameComplete()) {
                 var screen = Crafty.e("FinalScreen");
-                var totalScore = game._mistakes*SCORE_MISTAKE + game._golden*SCORE_COLDEN;
+                var totalScore = game._mistakes*SCORE_MISTAKE
+                                + game._golden*SCORE_COLDEN
+                                + game._damage*SCORE_DAMAGE;
                 screen._setStatistics(
                     {mistakes: game._mistakes, golden: game._golden, score: totalScore});
             } else {
@@ -107,6 +112,9 @@ Crafty.c("Game", {
         } else if (cell._type == CELL_TYPE_GOLDEN) {
             game._golden++;
             cell._removeGold();
+        } else if (cell._type == CELL_TYPE_DANGER) {
+            game._damage++;
+            cell._removeDanger(cell);
         }
     },
     _isGameComplete: function() {
