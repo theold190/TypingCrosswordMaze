@@ -1,3 +1,4 @@
+var NUMBER_GAMES = 3;
 var SCORE_COLDEN = 1,
     SCORE_MISTAKE = -5;
 
@@ -67,7 +68,7 @@ Crafty.c("Game", {
         var finishPosition = board._getRandomCell();
         board._setAsFinish(finishPosition);
 
-        var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
+        var startPosition = board._getRandomCell(CELL_TYPE_NORMAL);
 
         var player = Crafty.e("Player")._setBoard(board);
         player._setStartPosition(startPosition.x, startPosition.y);

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
 	<script type="text/javascript" src="js/crafty.js"></script>
+	<script type="text/javascript" src="js/display.js"></script>
 	<script type="text/javascript" src="js/board.js"></script>
 	<script type="text/javascript" src="js/game.js"></script>
 	<script type="text/javascript" src="js/player.js"></script>
@@ -8,15 +9,12 @@
 </head>
 <body>
   <script type="text/javascript">
-    var DISPLAY_WIDTH = 400,
-        DISPLAY_HEIGHT = 400;
-
     function initCrafty() {
         Crafty.init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
     window.onload = (function() {
         initCrafty();
-        var game = Crafty.e("Game")._startGame(3);
+        var game = Crafty.e("Game")._startGame(NUMBER_GAMES);
     });
   </script>
 </body>

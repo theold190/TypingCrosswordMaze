@@ -1,7 +1,9 @@
+// Select size the way so text in cells doesn't go outsice of boudaries
+// (it will not cause a crash, but not all cells will be updated)
 var BOARD_ROWS = 5,
     BOARD_COLS = 5;
-var CELL_WIDTH  = 80,
-    CELL_HEIGHT = 80;
+var CELL_WIDTH  = DISPLAY_WIDTH/BOARD_COLS,
+    CELL_HEIGHT = DISPLAY_WIDTH/BOARD_ROWS;
 var BOARD_LEFT = 0,
     BOARD_TOP  = 0;
 var BOARD_WIDTH  = BOARD_COLS*CELL_WIDTH,
@@ -9,8 +11,17 @@ var BOARD_WIDTH  = BOARD_COLS*CELL_WIDTH,
 
 var CELL_TYPE_FINISH = 0,
     CELL_TYPE_SOLID  = 1,
-    CELL_TYPE_LETTER = 2,
+    CELL_TYPE_NORMAL = 2,
     CELL_TYPE_GOLDEN = 3;
+
+var CELL_COLOR_FINISH = "#00F",
+    CELL_COLOR_SOLID  = '#000',
+    CELL_COLOR_NORMAL = '#FFF',
+    CELL_COLOR_GOLDEN = "#FFF";
+
+var TEXT_COLOR_NORMAL = '#000000',
+    TEXT_COLOR_GOLDEN = '#FFD700';
+
 
 // Cell should have indexes in a board and not x and y as coordinates
 // This way it will be easier to search cells
@@ -21,18 +32,17 @@ Crafty.c("Cell", {
     },
     _type: CELL_TYPE_SOLID,
     _makeCell: function(x, y, type, text) {
-        var CELL_COLORS = ["#00F", '#000', '#FFF', "#FFF"];
+        var CELL_COLORS = [CELL_COLOR_FINISH, CELL_COLOR_SOLID, CELL_COLOR_NORMAL, CELL_COLOR_GOLDEN];
         this.attr({x: x, y: y}).color(CELL_COLORS[type]);
         this._type = type;
 
-        if (this._type == CELL_TYPE_LETTER
+        if (this._type == CELL_TYPE_NORMAL
             || this._type == CELL_TYPE_GOLDEN)
         {
-            var TEXT_COLORS = ['#000000', '#FFD700'];
-            var index = this._type - CELL_TYPE_LETTER;
+            var TEXT_COLORS = [TEXT_COLOR_NORMAL, TEXT_COLOR_GOLDEN];
+            var index = this._type - CELL_TYPE_NORMAL;
             if(!this.has("Text")) {
                 this.addComponent("Text");
-                this.textColor('#000000', 1);
                 this.textFont({size: '50px', family: 'Arial'});
             }
             this.textColor(TEXT_COLORS[index], 1);
@@ -41,7 +51,7 @@ Crafty.c("Cell", {
         return this;
     },
     _removeGold: function() {
-        this._makeCell(this.x, this.y, CELL_TYPE_LETTER, this.text);
+        this._makeCell(this.x, this.y, CELL_TYPE_NORMAL, this.text);
     },
     _isInsideCell: function(x, y) {
         if (this.x <= x && this.x+this.w > x) {
@@ -66,8 +76,8 @@ Crafty.c("Cell", {
 });
 
 Crafty.c("Board", {
-    //CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_SOLID],
-    CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_GOLDEN],
+    //CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_SOLID],
+    CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_GOLDEN],
     LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
     //LETTERS: ["A"],
     init: function() {
