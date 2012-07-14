@@ -16,6 +16,9 @@
         BOARD_TOP  = 0;
     var BOARD_WIDTH  = BOARD_COLS*STEP_WIDTH,
         BOARD_HEIGHT = BOARD_ROWS*STEP_HEIGHT;
+    var CELL_TYPE_LETTER = 0,
+        CELL_TYPE_SOLID  = 1,
+        CELL_TYPE_FINISH = 2;
 
     function initCrafty() {
         // Initialize Crafty
@@ -24,38 +27,34 @@
         Crafty.c("Player", {
             init: function() {
                 this.addComponent("2D, Canvas, Color, KeyboardEvent");
-
-                this.x = 120;
-                this.y = 0;
-                this.w = CELL_WIDTH;
-                this.h = CELL_HEIGHT;
+                this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:CELL_WIDTH, h:CELL_HEIGHT});
                 this.color("#FFAA11");
 
                 this.bind('KeyDown', function(e) {
                     if (this._canGoLeft()) {
                         var cell = this._board._getCellOnLeft(this.x, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(cell._isAssignedKey(e.key)) {
                             this._goLeft();
                             return;
                         }
                     }
                     if (this._canGoRight()) {
                         var cell = this._board._getCellOnRight(this.x, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(cell._isAssignedKey(e.key)) {
                             this._goRight();
                             return;
                         }
                     }
                     if (this._canGoUp()) {
                         var cell = this._board._getCellOnTop(this.x, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(cell._isAssignedKey(e.key)) {
                             this._goUp();
                             return;
                         }
                     }
                     if (this._canGoDown()) {
                         var cell = this._board._getCellOnBottom(this.x, this.y);
-                        if(e.key == Crafty.keys[cell._text]) {
+                        if(cell._isAssignedKey(e.key)) {
                             this._goDown();
                             return;
                         }
@@ -72,33 +71,38 @@
                     }
                 });
             },
-            setBoard: function(board) {
+            _setBoard: function(board) {
                 this._board = board;
+                return this;
+            },
+            _setStartPosition: function(x, y) {
+                this.attr({x: x, y: y});
+                return this;
             },
             _canGoUp: function() {
                 var cell = this._board._getCellOnTop(this.x, this.y);
-                if (cell == undefined || cell._solid) {
+                if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
                     return false;
                 }
                 return true;
             },
             _canGoDown: function() {
                 var cell = this._board._getCellOnBottom(this.x, this.y);
-                if (cell == undefined || cell._solid) {
+                if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
                     return false;
                 }
                 return true;
             },
             _canGoLeft: function() {
                 var cell = this._board._getCellOnLeft(this.x, this.y);
-                if (cell == undefined || cell._solid) {
+                if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
                     return false;
                 }
                 return true;
             },
             _canGoRight: function() {
                 var cell = this._board._getCellOnRight(this.x, this.y);
-                if (cell == undefined || cell._solid) {
+                if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
                     return false;
                 }
                 return true;
@@ -126,11 +130,11 @@
                 this.textColor('#000000', 1);
                 this.textFont({size: '50px', family: 'Arial'});
             },
-            _solid: 0,
-            _makeCell: function(x, y, solid, text) {
-                var COLORS = ['#FFF', '#000'];
-                this.attr({x: x, y: y}).color(COLORS[solid]).text(text);
-                this._solid = solid;
+            _type: CELL_TYPE_LETTER,
+            _makeCell: function(x, y, type, text) {
+                var COLORS = ['#FFF', '#000', "#00F"];
+                this.attr({x: x, y: y}).color(COLORS[type]).text(text);
+                this._type = type;
                 return this;
             },
             _isInsideCell: function(x, y) {
@@ -140,11 +144,23 @@
                     }
                 }
                 return false;
+            },
+            _isAssignedKey: function(key) {
+                if (key == Crafty.keys[this._text]) {
+                    return true;
+                }
+                if (this._type == CELL_TYPE_FINISH
+                    && (key == Crafty.keys['SPACE']
+                        || key == Crafty.keys['ENTER']))
+                {
+                    return true;
+                }
+                return false;
             }
         });
 
         Crafty.c("Board", {
-            SOLID: [0, 1],
+            CELL_TYPE: [CELL_TYPE_LETTER, CELL_TYPE_SOLID],
             LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
             //LETTERS: ["A"],
             init: function() {
@@ -162,11 +178,24 @@
                     for (var j=0; j<rows; j++) {
                         var cell = Crafty.e("Cell")._makeCell(x + i*cw,
                                                              y + j*ch,
-                                                             Crafty.math.randomElementOfArray(this.SOLID),
+                                                             Crafty.math.randomElementOfArray(this.CELL_TYPE),
                                                              Crafty.math.randomElementOfArray(this.LETTERS));
                         this._board[i][j] = cell;
                     }
                 }
+            },
+            _getRandomCell: function(type) {
+                var cols = this._board.length;
+                var rows = this._board[0].length;
+                var cell, first = false;
+                if(type == undefined) {first = true;}
+
+                do {
+                    var i = Crafty.math.randomInt(0, cols-1);
+                    var j = Crafty.math.randomInt(0, rows-1);
+                    cell = this._board[i][j];
+                } while (!first && cell._type != type);
+                return cell;
             },
             _getCell: function(x, y) {
                 var cols = this._board.length;
@@ -196,8 +225,12 @@
     }
     window.onload = (function() {
         initCrafty();
-        var bg = Crafty.e("Board");
-        var pl = Crafty.e("Player").setBoard(bg);
+        var board = Crafty.e("Board");
+        var finishPosition = board._getRandomCell();
+        finishPosition._makeCell(finishPosition.x, finishPosition.y, CELL_TYPE_FINISH, " ");
+
+        var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
+        var pl = Crafty.e("Player")._setBoard(board)._setStartPosition(startPosition.x, startPosition.y);
     });
   </script>
 </body>
