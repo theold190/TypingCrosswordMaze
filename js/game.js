@@ -24,27 +24,21 @@ Crafty.c("Game", {
             }
         });
     },
-    _isGameEnded: function() {
-        var screens = Crafty('FinalScreen');
+    _isScreenDisplayed: function(screen) {
+        var screens = Crafty(screen);
         if (screens.length > 0) {
             return true;
         }
         return false;
+    },
+    _isGameEnded: function() {
+        return this._isScreenDisplayed('FinalScreen');
     },
     _isRoundEnded: function() {
-        var screens = Crafty('IntermediateScreen');
-        if (screens.length > 0) {
-            return true;
-        }
-        return false;
+        return this._isScreenDisplayed('IntermediateScreen');
     },
     _isGameStart: function() {
-        var screens = Crafty('WelcomeScreen');
-        var msg = "" + screens + " "+screen.length;
-        if (screens.length > 0) {
-            return true;
-        }
-        return false;
+        return this._isScreenDisplayed('WelcomeScreen');
     },
     _isNextScreenKey: function (key) {
         if (key == Crafty.keys['SPACE']
@@ -86,6 +80,12 @@ Crafty.c("Game", {
     _setBoard: function(board) {
         this._board = board;
     },
+    _getCurrentScore: function() {
+        var game = Crafty(Crafty('Game')[0]);
+        return game._mistakes*SCORE_MISTAKE
+                + game._golden*SCORE_COLDEN
+                + game._damage*SCORE_DAMAGE;
+    },
     _playerUpdate: function(x, y, moved) {
         // If we haven't moved - we have make a typing mistake
         var game = Crafty(Crafty('Game')[0]);
@@ -99,9 +99,7 @@ Crafty.c("Game", {
             game._clearAll();
             if (game._isGameComplete()) {
                 var screen = Crafty.e("FinalScreen");
-                var totalScore = game._mistakes*SCORE_MISTAKE
-                                + game._golden*SCORE_COLDEN
-                                + game._damage*SCORE_DAMAGE;
+                var totalScore = game._getCurrentScore();
                 screen._setStatistics(
                     {mistakes: game._mistakes, golden: game._golden, score: totalScore});
             } else {

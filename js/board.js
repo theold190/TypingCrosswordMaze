@@ -59,17 +59,17 @@ Crafty.c("Cell", {
         }
         return false;
     },
-    _addGold: function() {
+    _setGold: function() {
         this._makeCell(this.x, this.y, CELL_TYPE_GOLDEN, this.text);
     },
     _removeGold: function() {
         this._makeCell(this.x, this.y, CELL_TYPE_NORMAL, this.text);
     },
-    _addDanger: function() {
+    _setDanger: function() {
         this._makeCell(this.x, this.y, CELL_TYPE_DANGER, this.text);
     },
     _removeDanger: function() {
-        this._addGold();
+        this._setGold();
     },
     _isInsideCell: function(x, y) {
         if (this.x <= x && this.x+this.w > x) {

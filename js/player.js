@@ -2,6 +2,8 @@ var PLAYER_ZORDER = 1;
 var STEP_WIDTH  = CELL_WIDTH,
     STEP_HEIGHT = CELL_HEIGHT;
 
+var DEBUG = 1;
+
 Crafty.c("Player", {
     init: function() {
         this.addComponent("2D, Canvas, Color, KeyboardEvent");
@@ -46,18 +48,20 @@ Crafty.c("Player", {
         }
 
         // This is used for easier development, should be removed
-        if(key == Crafty.keys['LEFT_ARROW']) {
-            this._goLeft();
-            return true;
-        } else if (key == Crafty.keys['RIGHT_ARROW']) {
-            this._goRight();
-            return true;
-        } else if (key == Crafty.keys['UP_ARROW']) {
-            this._goUp();
-            return true;
-        } else if (key == Crafty.keys['DOWN_ARROW']) {
-            this._goDown();
-            return true;
+        if (DEBUG == 1) {
+            if(key == Crafty.keys['LEFT_ARROW']) {
+                this._goLeft();
+                return true;
+            } else if (key == Crafty.keys['RIGHT_ARROW']) {
+                this._goRight();
+                return true;
+            } else if (key == Crafty.keys['UP_ARROW']) {
+                this._goUp();
+                return true;
+            } else if (key == Crafty.keys['DOWN_ARROW']) {
+                this._goDown();
+                return true;
+            }
         }
         return false;
     },
@@ -72,33 +76,27 @@ Crafty.c("Player", {
         this.attr({x: x, y: y});
         return this;
     },
-    _canGoUp: function() {
-        var cell = this._board._getCellOnTop(this.x, this.y);
+    _canGoToCell: function(cell) {
         if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
             return false;
         }
         return true;
+    },
+    _canGoUp: function() {
+        var cell = this._board._getCellOnTop(this.x, this.y);
+        return this._canGoToCell(cell);
     },
     _canGoDown: function() {
         var cell = this._board._getCellOnBottom(this.x, this.y);
-        if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
-            return false;
-        }
-        return true;
+        return this._canGoToCell(cell);
     },
     _canGoLeft: function() {
         var cell = this._board._getCellOnLeft(this.x, this.y);
-        if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
-            return false;
-        }
-        return true;
+        return this._canGoToCell(cell);
     },
     _canGoRight: function() {
         var cell = this._board._getCellOnRight(this.x, this.y);
-        if (cell == undefined || cell._type == CELL_TYPE_SOLID) {
-            return false;
-        }
-        return true;
+        return this._canGoToCell(cell);
     },
     _goUp: function () {
         if(this._canGoUp()) {this.y = this.y - STEP_HEIGHT;}
