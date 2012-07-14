@@ -1,7 +1,7 @@
-var CELL_WIDTH  = 60,
-    CELL_HEIGHT = 60;
 var BOARD_ROWS = 5,
     BOARD_COLS = 5;
+var CELL_WIDTH  = 80,
+    CELL_HEIGHT = 80;
 var BOARD_LEFT = 0,
     BOARD_TOP  = 0;
 var BOARD_WIDTH  = BOARD_COLS*CELL_WIDTH,

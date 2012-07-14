@@ -1,5 +1,5 @@
-var STEP_WIDTH  = 60,
-    STEP_HEIGHT = 60;
+var STEP_WIDTH  = CELL_WIDTH,
+    STEP_HEIGHT = CELL_HEIGHT;
 
 Crafty.c("Player", {
     init: function() {

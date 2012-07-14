@@ -87,8 +87,8 @@ Crafty.c("Game", {
         var cell = game._board._getCell(x, y);
         if (cell._type == CELL_TYPE_FINISH) {
             game._currentGame++;
+            game._clearAll();
             if (game._isGameComplete()) {
-                game._clearAll();
                 var screen = Crafty.e("FinalScreen");
                 screen._setStatistics(
                     {totalGames: game._totalGames, mistakes: game._mistakes});
