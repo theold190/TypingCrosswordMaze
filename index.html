@@ -88,7 +88,7 @@
                 return this;
             },
             _setUpdateCallback: function(callback, context) {
-                // We need to run callback in game's context, so for now 
+                // We need to run callback in game's context, so for now
                 // have this solution
                 this._playerUpdateCallback = callback;
                 this._playerUpdateContext = context;
@@ -199,6 +199,17 @@
                     }
                 }
             },
+            _clearBoard: function() {
+                var cols = this._board.length;
+                var rows = this._board[0].length;
+                for (var i=0; i<cols; i++) {
+                    for (var j=0; j<rows; j++) {
+                        if (this._board[i][j] != undefined) {
+                            this._board[i][j].destroy();
+                        }
+                    }
+                }
+            },
             _getRandomCell: function(type) {
                 var cols = this._board.length;
                 var rows = this._board[0].length;
@@ -283,6 +294,7 @@
                 this._startRound();
             },
             _startRound: function() {
+                this._endRound();
                 var board = Crafty.e("Board");
                 this._setBoard(board);
 
@@ -296,8 +308,13 @@
                 this._setPlayer(player);
             },
             _endRound: function() {
-                if (this._board) {this._board.destroy();}
-                if (this._player) {this._player.destroy();}
+                if (this._board) {
+                    this._board._clearBoard();
+                    this._board.destroy();
+                }
+                if (this._player) {
+                    this._player.destroy();
+                }
             },
             _setPlayer: function(player) {
                 this._player = player;
@@ -309,8 +326,8 @@
                 var cell = this._board._getCell(x, y);
                 if (cell._type == CELL_TYPE_FINISH) {
                     this._currentGame++;
-                    this._endRound();
                     if (this._isGameComplete()) {
+                        this._endRound();
                         var finalScreen = Crafty.e("FinalScreen");
                         finalScreen._setStatistics({totalGames: this._totalGames});
                     } else {
