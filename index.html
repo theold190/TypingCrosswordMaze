@@ -24,6 +24,24 @@
         // Initialize Crafty
         Crafty.init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
+        Crafty.c("Game", {
+            init: function() {
+                this.addComponent("");
+            },
+            _setPlayer: function(player) {
+                this._player = player;
+            },
+            _setBoard: function(board) {
+                this._board = board;
+            },
+            _playerUpdate: function(x, y) {
+                var cell = this._board._getCell(x, y);
+                if (cell._type == CELL_TYPE_FINISH) {
+                    alert("Congratulations!");
+                }
+            }
+        });
+
         Crafty.c("Player", {
             init: function() {
                 this.addComponent("2D, Canvas, Color, KeyboardEvent");
@@ -31,49 +49,64 @@
                 this.color("#FFAA11");
 
                 this.bind('KeyDown', function(e) {
-                    if (this._canGoLeft()) {
-                        var cell = this._board._getCellOnLeft(this.x, this.y);
-                        if(cell._isAssignedKey(e.key)) {
-                            this._goLeft();
-                            return;
+                    if (this._navigatePlayer(e.key)) {
+                        if (this._playerUpdateCallback != undefined) {
+                            this._playerUpdateCallback(this.x, this.y);
                         }
-                    }
-                    if (this._canGoRight()) {
-                        var cell = this._board._getCellOnRight(this.x, this.y);
-                        if(cell._isAssignedKey(e.key)) {
-                            this._goRight();
-                            return;
-                        }
-                    }
-                    if (this._canGoUp()) {
-                        var cell = this._board._getCellOnTop(this.x, this.y);
-                        if(cell._isAssignedKey(e.key)) {
-                            this._goUp();
-                            return;
-                        }
-                    }
-                    if (this._canGoDown()) {
-                        var cell = this._board._getCellOnBottom(this.x, this.y);
-                        if(cell._isAssignedKey(e.key)) {
-                            this._goDown();
-                            return;
-                        }
-                    }
-
-                    if(e.key == Crafty.keys['LEFT_ARROW']) {
-                        this._goLeft();
-                    } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-                        this._goRight();
-                    } else if (e.key == Crafty.keys['UP_ARROW']) {
-                        this._goUp();
-                    } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-                        this._goDown();
                     }
                 });
+            },
+            _navigatePlayer: function(key) {
+                if (this._canGoLeft()) {
+                    var cell = this._board._getCellOnLeft(this.x, this.y);
+                    if(cell._isAssignedKey(key)) {
+                        this._goLeft();
+                        return true;
+                    }
+                }
+                if (this._canGoRight()) {
+                    var cell = this._board._getCellOnRight(this.x, this.y);
+                    if(cell._isAssignedKey(key)) {
+                        this._goRight();
+                        return true;
+                    }
+                }
+                if (this._canGoUp()) {
+                    var cell = this._board._getCellOnTop(this.x, this.y);
+                    if(cell._isAssignedKey(key)) {
+                        this._goUp();
+                        return true;
+                    }
+                }
+                if (this._canGoDown()) {
+                    var cell = this._board._getCellOnBottom(this.x, this.y);
+                    if(cell._isAssignedKey(key)) {
+                        this._goDown();
+                        return true;
+                    }
+                }
+
+                if(key == Crafty.keys['LEFT_ARROW']) {
+                    this._goLeft();
+                    return true;
+                } else if (key == Crafty.keys['RIGHT_ARROW']) {
+                    this._goRight();
+                    return true;
+                } else if (key == Crafty.keys['UP_ARROW']) {
+                    this._goUp();
+                    return true;
+                } else if (key == Crafty.keys['DOWN_ARROW']) {
+                    this._goDown();
+                    return true;
+                }
+                return false;
             },
             _setBoard: function(board) {
                 this._board = board;
                 return this;
+            },
+            _setUpdateCallback: function(callback) {
+                this._playerUpdateCallback = callback;
             },
             _setStartPosition: function(x, y) {
                 this.attr({x: x, y: y});
@@ -225,12 +258,16 @@
     }
     window.onload = (function() {
         initCrafty();
+        var game = Crafty.e("Game");
+
         var board = Crafty.e("Board");
+        game._setBoard(board);
+
         var finishPosition = board._getRandomCell();
         finishPosition._makeCell(finishPosition.x, finishPosition.y, CELL_TYPE_FINISH, " ");
-
         var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
-        var pl = Crafty.e("Player")._setBoard(board)._setStartPosition(startPosition.x, startPosition.y);
+
+        var pl = Crafty.e("Player")._setBoard(board)._setStartPosition(startPosition.x, startPosition.y)._setUpdateCallback(game._playerUpdate);
     });
   </script>
 </body>
