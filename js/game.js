@@ -1,3 +1,6 @@
+var SCORE_COLDEN = 1,
+    SCORE_MISTAKE = -5;
+
 Crafty.c("Game", {
     init: function() {
         this.addComponent("");
@@ -62,7 +65,8 @@ Crafty.c("Game", {
         this._setBoard(board);
 
         var finishPosition = board._getRandomCell();
-        finishPosition._makeCell(finishPosition.x, finishPosition.y, CELL_TYPE_FINISH, " ");
+        board._setAsFinish(finishPosition);
+
         var startPosition = board._getRandomCell(CELL_TYPE_LETTER);
 
         var player = Crafty.e("Player")._setBoard(board);
@@ -91,8 +95,9 @@ Crafty.c("Game", {
             game._clearAll();
             if (game._isGameComplete()) {
                 var screen = Crafty.e("FinalScreen");
+                var totalScore = game._mistakes*SCORE_MISTAKE + game._golden*SCORE_COLDEN;
                 screen._setStatistics(
-                    {mistakes: game._mistakes, golden: game._golden});
+                    {mistakes: game._mistakes, golden: game._golden, score: totalScore});
             } else {
                 var screen = Crafty.e("IntermediateScreen");
                 screen._setStatistics(
@@ -100,7 +105,7 @@ Crafty.c("Game", {
             }
         } else if (cell._type == CELL_TYPE_GOLDEN) {
             game._golden++;
-            cell._makeCell(cell.x, cell.y, CELL_TYPE_LETTER, cell.text);
+            cell._removeGold();
         }
     },
     _isGameComplete: function() {

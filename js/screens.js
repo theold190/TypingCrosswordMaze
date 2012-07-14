@@ -18,11 +18,15 @@ Crafty.c("Screen", {
                 text += "G: "+stats.totalGames+" ";
             }
         }
-        if (stats.mistakes != undefined) {
-            text += "M: "+stats.mistakes + " ";
-        }
-        if (stats.golden != undefined) {
-            text += "Gold: "+stats.golden;
+        if (stats.score != undefined) {
+            text += "Score: "+stats.score + " ";
+        } else {
+            if (stats.mistakes != undefined) {
+                text += "M: "+stats.mistakes + " ";
+            }
+            if (stats.golden != undefined) {
+                text += "Gold: "+stats.golden + " ";
+            }
         }
         this.text(text);
     }

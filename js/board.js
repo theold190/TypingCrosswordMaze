@@ -12,27 +12,36 @@ var CELL_TYPE_FINISH = 0,
     CELL_TYPE_LETTER = 2,
     CELL_TYPE_GOLDEN = 3;
 
+// Cell should have indexes in a board and not x and y as coordinates
+// This way it will be easier to search cells
 Crafty.c("Cell", {
-    ready: true,
     init: function() {
-        this.addComponent("2D, Canvas, Color, Text");
+        this.addComponent("2D, Canvas, Color");
         this.attr({w:CELL_WIDTH, h:CELL_HEIGHT});
-        this.textColor('#000000', 1);
-        this.textFont({size: '50px', family: 'Arial'});
     },
-    _type: CELL_TYPE_LETTER,
+    _type: CELL_TYPE_SOLID,
     _makeCell: function(x, y, type, text) {
         var CELL_COLORS = ["#00F", '#000', '#FFF', "#FFF"];
-        var TEXT_COLORS = ['#000000', '#FFD700'];
-        this.attr({x: x, y: y}).color(CELL_COLORS[type]).text(text);
+        this.attr({x: x, y: y}).color(CELL_COLORS[type]);
         this._type = type;
 
         if (this._type == CELL_TYPE_LETTER
-            || this._type == CELL_TYPE_GOLDEN) {
+            || this._type == CELL_TYPE_GOLDEN)
+        {
+            var TEXT_COLORS = ['#000000', '#FFD700'];
             var index = this._type - CELL_TYPE_LETTER;
+            if(!this.has("Text")) {
+                this.addComponent("Text");
+                this.textColor('#000000', 1);
+                this.textFont({size: '50px', family: 'Arial'});
+            }
             this.textColor(TEXT_COLORS[index], 1);
+            this.text(text);
         }
         return this;
+    },
+    _removeGold: function() {
+        this._makeCell(this.x, this.y, CELL_TYPE_LETTER, this.text);
     },
     _isInsideCell: function(x, y) {
         if (this.x <= x && this.x+this.w > x) {
@@ -76,6 +85,23 @@ Crafty.c("Board", {
                                                      Crafty.math.randomElementOfArray(this.CELL_TYPE),
                                                      Crafty.math.randomElementOfArray(this.LETTERS));
                 this._board[i][j] = cell;
+            }
+        }
+    },
+    // This method should be in Cell, but in that case I have refresh problems
+    // if golden letter is removed from the left. Finish is refreshed
+    // partially - to the width of the text (" ") in it.
+    _setAsFinish: function(cell) {
+        var cols = this._board.length;
+        var rows = this._board[0].length;
+
+        for (var i=0; i<cols; i++) {
+            for (var j=0; j<rows; j++) {
+                if(this._board[i][j]._isInsideCell(cell.x, cell.y)) {
+                    var cell2 = Crafty.e("Cell")._makeCell(cell.x, cell.y, CELL_TYPE_FINISH,"");
+                    this._board[i][j].destroy();
+                    this._board[i][j] = cell2;
+                }
             }
         }
     },
