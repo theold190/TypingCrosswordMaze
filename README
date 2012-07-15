@@ -31,3 +31,29 @@ Day2
 +Add randomly placed bombs
 +Keep track of collected letters
 +Add special letters to collect (give a task to a user)
+
+Day3
++Reward for collected letters
++Final screen with statistics
++Intermediate screen with golden letters
+
+
+Ideas:
+-Play until all letters are found (limit golden, limit danger, allow to exchange)
+	-Exchange rate - 5 other golden letters for the one you need
+-Add solid cells
+-Add bombs with time (so it is harder to collect all gold)
+
+-Center the text
+
+-Fix resources for level, hero
+-Add movement animation with Tween
+-Crafty pause/stop
+
+CODE optimizations:
++Search for a Game object from a callback
++Split code to different files
++Canvas vs DOM
+Use position instead of coordinates
+Use functions as parameters
+Set names for Crafty entities
