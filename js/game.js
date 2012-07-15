@@ -1,5 +1,7 @@
 var NUMBER_GAMES = 3;
 
+var NUMBER_GOAL_LETTERS = 5;
+
 var SCORE_COLDEN  = 1,
     SCORE_MISTAKE = -5,
     SCORE_DAMAGE  = -2;
@@ -9,16 +11,20 @@ Crafty.c("Game", {
         this.addComponent("");
         this.bind('KeyDown', function(e) {
             if (this._isNextScreenKey(e.key)) {
-                if (this._isGameEnded()) {
+                if (this._isWelcomeScreen()) {
+                    this._generateTask();
+                    return;
+                }
+                if (this._isTaskScreen()) {
+                    this._startRound();
+                    return;
+                }
+                if (this._isIntermediateScreen()) {
+                    this._startRound();
+                    return;
+                }
+                if (this._isFinalScreen()) {
                     this._startGame(this._totalGames);
-                    return;
-                }
-                if (this._isRoundEnded()) {
-                    this._startRound();
-                    return;
-                }
-                if (this._isGameStart()) {
-                    this._startRound();
                     return;
                 }
             }
@@ -31,14 +37,17 @@ Crafty.c("Game", {
         }
         return false;
     },
-    _isGameEnded: function() {
-        return this._isScreenDisplayed('FinalScreen');
+    _isWelcomeScreen: function() {
+        return this._isScreenDisplayed('WelcomeScreen');
     },
-    _isRoundEnded: function() {
+    _isTaskScreen: function() {
+        return this._isScreenDisplayed('TaskScreen');
+    },
+    _isIntermediateScreen: function() {
         return this._isScreenDisplayed('IntermediateScreen');
     },
-    _isGameStart: function() {
-        return this._isScreenDisplayed('WelcomeScreen');
+    _isFinalScreen: function() {
+        return this._isScreenDisplayed('FinalScreen');
     },
     _isNextScreenKey: function (key) {
         if (key == Crafty.keys['SPACE']
@@ -53,6 +62,16 @@ Crafty.c("Game", {
         this._mistakes = 0;
         this._golden = 0;
         this._damage = 0;
+
+        if (this._collection != undefined) {
+            delete this._collection;
+        }
+        this._collection = new Object;
+
+        if (this._task != undefined) {
+            delete this._task;
+        }
+        this._task = new Object;
 
         this._clearAll();
         Crafty.e("WelcomeScreen");
@@ -82,6 +101,10 @@ Crafty.c("Game", {
     },
     _getCurrentScore: function() {
         var game = Crafty(Crafty('Game')[0]);
+        var golden = 0, counter = 0;
+        for (i in game._collection) {
+            golden += game._collection[i];
+        }
         return game._mistakes*SCORE_MISTAKE
                 + game._golden*SCORE_COLDEN
                 + game._damage*SCORE_DAMAGE;
@@ -105,11 +128,22 @@ Crafty.c("Game", {
             } else {
                 var screen = Crafty.e("IntermediateScreen");
                 screen._setStatistics(
-                    {currentGame: game._currentGame, totalGames: game._totalGames});
+                    {currentGame: game._currentGame, totalGames: game._totalGames, taskLeft: game._task});
             }
         } else if (cell._type == CELL_TYPE_GOLDEN) {
+            var text = cell.text();
             game._golden++;
             cell._removeGold();
+            if (game._collection[text] == undefined) {
+                game._collection[text] = 0;
+            }
+            game._collection[text]++;
+
+            if (game._task[text] != undefined
+                && game._task[text] > 0)
+            {
+                game._task[text]--;
+            }
         } else if (cell._type == CELL_TYPE_DANGER) {
             game._damage++;
             cell._removeDanger(cell);
@@ -117,5 +151,17 @@ Crafty.c("Game", {
     },
     _isGameComplete: function() {
         return this._totalGames <= this._currentGame;
+    },
+    _generateTask: function() {
+        var num = Crafty.math.randomNumber(3, NUMBER_GOAL_LETTERS);
+        for(var i=0; i<num; i++) {
+            var letter = Crafty.math.randomElementOfArray(BOARD_LETTERS);
+            if (this._task[letter] == undefined) {
+                this._task[letter] = 0;
+            }
+            this._task[letter]++;
+        }
+        this._clearAll();
+        Crafty.e("TaskScreen")._setTask(this._task);
     }
 });

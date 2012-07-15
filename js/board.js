@@ -25,6 +25,8 @@ var TEXT_COLOR_NORMAL = '#000000',
     TEXT_COLOR_GOLDEN = '#FFD700',
     TEXT_COLOR_DANGER = '#FF0000';
 
+var BOARD_LETTERS = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
 // Cell should have indexes in a board and not x and y as coordinates
 // This way it will be easier to search cells
 Crafty.c("Cell", {
@@ -60,13 +62,13 @@ Crafty.c("Cell", {
         return false;
     },
     _setGold: function() {
-        this._makeCell(this.x, this.y, CELL_TYPE_GOLDEN, this.text);
+        this._makeCell(this.x, this.y, CELL_TYPE_GOLDEN, this.text());
     },
     _removeGold: function() {
-        this._makeCell(this.x, this.y, CELL_TYPE_NORMAL, this.text);
+        this._makeCell(this.x, this.y, CELL_TYPE_NORMAL, this.text());
     },
     _setDanger: function() {
-        this._makeCell(this.x, this.y, CELL_TYPE_DANGER, this.text);
+        this._makeCell(this.x, this.y, CELL_TYPE_DANGER, this.text());
     },
     _removeDanger: function() {
         this._setGold();
@@ -96,8 +98,6 @@ Crafty.c("Cell", {
 Crafty.c("Board", {
     //CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_SOLID],
     CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_GOLDEN, CELL_TYPE_DANGER],
-    LETTERS: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
-    //LETTERS: ["A"],
     init: function() {
         this.addComponent("2D, Canvas");
         this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:BOARD_WIDTH, h:BOARD_HEIGHT});
@@ -111,7 +111,7 @@ Crafty.c("Board", {
                 var cell = Crafty.e("Cell")._makeCell(x + i*cw,
                                                      y + j*ch,
                                                      Crafty.math.randomElementOfArray(this.CELL_TYPE),
-                                                     Crafty.math.randomElementOfArray(this.LETTERS));
+                                                     Crafty.math.randomElementOfArray(BOARD_LETTERS));
                 this._board[i][j] = cell;
             }
         }
@@ -133,7 +133,7 @@ Crafty.c("Board", {
     // if golden letter is removed from the left. Finish is refreshed
     // partially - to the width of the text (" ") in it.
     _setAsFinish: function(cell) {
-        var newCell = Crafty.e("Cell")._makeCell(cell.x, cell.y, CELL_TYPE_FINISH, cell.text);
+        var newCell = Crafty.e("Cell")._makeCell(cell.x, cell.y, CELL_TYPE_FINISH, cell.text());
         this._replaceCell(cell, newCell);
     },
     _getRandomCell: function(type) {
