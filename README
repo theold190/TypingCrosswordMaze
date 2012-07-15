@@ -7,6 +7,7 @@ Would be intresting to have
 * some enemies
 * bonuses/upgrades (marked exit, light letters, slowing down time, mistake protection, fast letters unlocks)
 * additional unlocks
+* dynamically changing level (cells not next to player might change values from time to time)
 
 Day1
 Select an engine
@@ -14,3 +15,19 @@ Draw a hero
 Navigate a hero
 Draw a random level
 Treat black cells as solid
+
+Day2
++Clean up code
++Start and finish positions
++Level complete, congratulation message
++Restart rounds, store statistics
++Calculate mistakes (in callback)
++Restart game (delete finalScene in a endRound)
++Inter-round screens (with current status)?
++Fix graphical issue
++Welcome screen with the task
++Mistakes vs golden
++Collect golden letters (in callback)
++Add randomly placed bombs
++Keep track of collected letters
++Add special letters to collect (give a task to a user)
