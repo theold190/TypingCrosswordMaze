@@ -3,8 +3,10 @@ var NUMBER_GAMES = 3;
 var NUMBER_GOAL_LETTERS = 5;
 
 var SCORE_COLDEN  = 1,
-    SCORE_MISTAKE = -5,
-    SCORE_DAMAGE  = -2;
+    SCORE_MISTAKE = -3,
+    SCORE_DAMAGE  = -3
+    SCORE_COLLECTED = 2
+    SCORE_COLLECTED_ALL = 5;
 
 Crafty.c("Game", {
     init: function() {
@@ -62,11 +64,7 @@ Crafty.c("Game", {
         this._mistakes = 0;
         this._golden = 0;
         this._damage = 0;
-
-        if (this._collection != undefined) {
-            delete this._collection;
-        }
-        this._collection = new Object;
+        this._collected = 0;
 
         if (this._task != undefined) {
             delete this._task;
@@ -102,12 +100,16 @@ Crafty.c("Game", {
     _getCurrentScore: function() {
         var game = Crafty(Crafty('Game')[0]);
         var golden = 0, counter = 0;
-        for (i in game._collection) {
-            golden += game._collection[i];
-        }
-        return game._mistakes*SCORE_MISTAKE
+        var empty = isListEmpty(game._task);
+
+        var score = game._mistakes*SCORE_MISTAKE
                 + game._golden*SCORE_COLDEN
-                + game._damage*SCORE_DAMAGE;
+                + game._damage*SCORE_DAMAGE
+                + game._collected*SCORE_COLLECTED
+                + (empty ? SCORE_COLLECTED_ALL : 0);
+        //var msg = "M: "+game._mistakes+" G: "+game._golden+" D: "+game._damage+" C: "+game._collected+" E: "+empty+" S: "+score;
+        //alert(msg);
+        return score;
     },
     _playerUpdate: function(x, y, moved) {
         // If we haven't moved - we have make a typing mistake
@@ -123,8 +125,9 @@ Crafty.c("Game", {
             if (game._isGameComplete()) {
                 var screen = Crafty.e("FinalScreen");
                 var totalScore = game._getCurrentScore();
+
                 screen._setStatistics(
-                    {mistakes: game._mistakes, golden: game._golden, score: totalScore});
+                    {score: totalScore, taskLeft: game._task});
             } else {
                 var screen = Crafty.e("IntermediateScreen");
                 screen._setStatistics(
@@ -134,15 +137,12 @@ Crafty.c("Game", {
             var text = cell.text();
             game._golden++;
             cell._removeGold();
-            if (game._collection[text] == undefined) {
-                game._collection[text] = 0;
-            }
-            game._collection[text]++;
-
             if (game._task[text] != undefined
                 && game._task[text] > 0)
             {
                 game._task[text]--;
+                // For now every collected gives gold + collection reward
+                game._collected++;
             }
         } else if (cell._type == CELL_TYPE_DANGER) {
             game._damage++;
@@ -154,6 +154,7 @@ Crafty.c("Game", {
     },
     _generateTask: function() {
         var num = Crafty.math.randomNumber(3, NUMBER_GOAL_LETTERS);
+        //var num = NUMBER_GOAL_LETTERS;
         for(var i=0; i<num; i++) {
             var letter = Crafty.math.randomElementOfArray(BOARD_LETTERS);
             if (this._task[letter] == undefined) {
@@ -162,6 +163,6 @@ Crafty.c("Game", {
             this._task[letter]++;
         }
         this._clearAll();
-        Crafty.e("TaskScreen")._setTask(this._task);
+        Crafty.e("TaskScreen")._setStatistics({currentGame: this._currentGame, totalGames: this._totalGames, taskLeft: this._task});
     }
 });

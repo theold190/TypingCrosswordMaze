@@ -1,3 +1,6 @@
+var SCREEN_WIDTH = BOARD_WIDTH,
+    SCREEN_HEIGHT = BOARD_HEIGHT;
+
 convertTaskToString = function(task) {
     var text = "";
     for (i in task) {
@@ -8,72 +11,96 @@ convertTaskToString = function(task) {
     return text;
 };
 
+isTaskCompleted = function(task) {
+    return isListEmpty(task);
+}
+
+Crafty.c("ScreenText", {
+    _textSize: 50,
+    _textColor: '#FFFFFF',
+    init: function() {
+        this.addComponent("2D, Canvas, Text");
+        this.textColor(this._textColor, 1);
+        var size = this._textSize + "px";
+        this.textFont({size: size, family: 'Arial'});
+    }
+});
+
 Crafty.c("Screen", {
     init: function() {
-        this.addComponent("2D, Canvas, Color, Text");
-        this.attr({w:BOARD_WIDTH, h:BOARD_HEIGHT});
+        this.addComponent("2D, Canvas, Color");
+        this.attr({w:SCREEN_WIDTH, h:SCREEN_HEIGHT});
         this.color('#000000');
-        this.textColor('#FFFFFF', 1);
-        this.textFont({size: '50px', family: 'Arial'});
     },
-    _setStatistics: function (stats) {
-        var text = "";
-        if (stats.currentGame != undefined && stats.totalGames != undefined) {
-            text += " " + stats.currentGame + " / " + stats.totalGames + " ";
-        } else {
-            if (stats.currentGame != undefined) {
-                text += "C: "+stats.currentGame+" ";
-            }
-            if (stats.totalGames != undefined) {
-                text += "G: "+stats.totalGames+" ";
-            }
-        }
-        if (stats.score != undefined) {
-            text += "Score: "+stats.score + " ";
-        } else {
-            if (stats.mistakes != undefined) {
-                text += "M: "+stats.mistakes + " ";
-            }
-            if (stats.golden != undefined) {
-                text += "Gold: "+stats.golden + " ";
-            }
-        }
-        if (stats.taskLeft != undefined) {
-            text += ": " + convertTaskToString(stats.taskLeft) + " ";
-        }
-        this.text(text);
-    }
 });
 
 Crafty.c("WelcomeScreen", {
     init: function() {
         this.addComponent("Screen");
-        this.text("Start!");
+        var text = Crafty.e("ScreenText");
+        text.text("Welcome to").attr({x: 0, y:SCREEN_HEIGHT/2, w:SCREEN_WIDTH});
+        var text2 = Crafty.e("ScreenText");
+        text2.text("Crossword Maze").attr({x: 0, y:SCREEN_HEIGHT/2+text2._textSize, w:SCREEN_WIDTH});
     }
 });
 
 Crafty.c("TaskScreen", {
     init: function() {
         this.addComponent("Screen");
-        this.text("Task!");
     },
-    _setTask: function(task) {
-        var text = "Get: " + convertTaskToString(task);
-        this.text(text);
+    _setStatistics: function (stats) {
+        if (stats.currentGame != undefined && stats.totalGames != undefined) {
+            var msg = " " + stats.currentGame + " / " + stats.totalGames + " ";
+            var text = Crafty.e("ScreenText").text(msg);
+            text.attr({x: SCREEN_WIDTH/2-70, y:SCREEN_HEIGHT/2});
+        }
+        if (stats.taskLeft != undefined) {
+            var msg = "Get: " + convertTaskToString(stats.taskLeft);
+            var text = Crafty.e("ScreenText");
+            text.text(msg).attr({x: 10, y:SCREEN_HEIGHT - 10, w:SCREEN_WIDTH});
+        }
     }
 });
 
 Crafty.c("IntermediateScreen", {
     init: function() {
         this.addComponent("Screen");
-        this.text("Done!");
+    },
+    _setStatistics: function (stats) {
+        if (stats.currentGame != undefined && stats.totalGames != undefined) {
+            var msg = " " + stats.currentGame + " / " + stats.totalGames + " ";
+            var text = Crafty.e("ScreenText").text(msg);
+            text.attr({x: SCREEN_WIDTH/2-70, y:SCREEN_HEIGHT/2});
+        }
+        if (stats.taskLeft != undefined) {
+            var msg = "Left: " + convertTaskToString(stats.taskLeft);
+            var text = Crafty.e("ScreenText");
+            text.text(msg).attr({x: 10, y:SCREEN_HEIGHT - 10, w:SCREEN_WIDTH});
+        }
     }
 });
 
 Crafty.c("FinalScreen", {
     init: function() {
         this.addComponent("Screen");
-        this.text("Completed!");
         this._totalGames = 1;
     },
+    _setStatistics: function (stats) {
+        if (stats.score != undefined) {
+            var msg = "Score: "+stats.score + " ";
+            var text = Crafty.e("ScreenText").text(msg);
+            text.attr({x: SCREEN_WIDTH/2-170, y:SCREEN_HEIGHT/2});
+        }
+        if (stats.taskLeft != undefined) {
+            var msg = "Task ";
+
+            if (isTaskCompleted(stats.taskLeft)) {
+                msg += "completed!";
+            } else {
+                msg += "failed...";
+            }
+            var text = Crafty.e("ScreenText");
+            text.text(msg).attr({x: 10, y:SCREEN_HEIGHT - 10});
+        }
+    }
 });
