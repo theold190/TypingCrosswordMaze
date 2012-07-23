@@ -1,5 +1,3 @@
-DreamCode 2012
-
-A maze like typing game. The playing field is a maze/crossword. Player can move main character by typing (typed key selects the direction). For every maze you get a task - to find a set of letters. End level by going to exit. If you succeed then you unlock those letters in a hall of the Alphabete. The task is to unlock whole alphabete in a shortest time.
+Crossword Maze game prototype was created at a summer DreamCode2012 event. It was created during 3 days with use of Crafty javascript game engine. The idea of the game is to practice your typing skills and get some entertainment. Prototype lacks music, graphics, tutorial and some usefull features, but it has all gameplay and game mechanics in it. Go on with the instruction, and try to get a highest score!
 
 You can play game here http://theold190.github.com/TypingCrosswordMaze/.

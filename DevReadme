@@ -1,3 +1,7 @@
+DreamCode 2012
+
+A maze like typing game. The playing field is a maze/crossword. Player can move main character by typing (typed key selects the direction). For every maze you get a task - to find a set of letters. End level by going to exit. If you succeed then you unlock those letters in a hall of the Alphabete. The task is to unlock whole alphabete in a shortest time.
+
 Would be intresting to have
 * a fog of war
 * some enemies
