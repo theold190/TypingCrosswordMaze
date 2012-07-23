@@ -49,6 +49,7 @@ Ideas:
 -Fix resources for level, hero
 -Add movement animation with Tween
 -Crafty pause/stop
+-Make version for different languages
 
 CODE optimizations:
 +Search for a Game object from a callback
