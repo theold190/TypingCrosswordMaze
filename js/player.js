@@ -6,9 +6,8 @@ var DEBUG = 1;
 
 Crafty.c("Player", {
     init: function() {
-        this.addComponent("2D, Canvas, Color, KeyboardEvent");
+        this.addComponent("2D, DOM, KeyboardEvent, sprite_hero");
         this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:CELL_WIDTH, h:CELL_HEIGHT, z: PLAYER_ZORDER});
-        this.color("#FFAA11");
 
         this.bind('KeyDown', function(e) {
             var moved = this._navigatePlayer(e.key);

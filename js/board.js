@@ -15,12 +15,6 @@ var CELL_TYPE_FINISH = 0,
     CELL_TYPE_GOLDEN = 3,
     CELL_TYPE_DANGER = 4;
 
-var CELL_COLOR_FINISH = "#00F",
-    CELL_COLOR_SOLID  = '#000',
-    CELL_COLOR_NORMAL = '#FFF',
-    CELL_COLOR_GOLDEN = "#FFF",
-    CELL_COLOR_DANGER = "#FFF";
-
 var TEXT_COLOR_NORMAL = '#000000',
     TEXT_COLOR_GOLDEN = '#FFD700',
     TEXT_COLOR_DANGER = '#FF0000';
@@ -31,13 +25,12 @@ var BOARD_LETTERS = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O"
 // This way it will be easier to search cells
 Crafty.c("Cell", {
     init: function() {
-        this.addComponent("2D, Canvas, Color");
+        this.addComponent("2D, Canvas");
         this.attr({w:CELL_WIDTH, h:CELL_HEIGHT});
     },
     _type: CELL_TYPE_SOLID,
     _makeCell: function(x, y, type, text) {
-        var CELL_COLORS = [CELL_COLOR_FINISH, CELL_COLOR_SOLID, CELL_COLOR_NORMAL, CELL_COLOR_GOLDEN, CELL_COLOR_DANGER];
-        this.attr({x: x, y: y}).color(CELL_COLORS[type]);
+        this.attr({x: x, y: y});
         this._type = type;
 
         if (this._type == CELL_TYPE_NORMAL
@@ -52,6 +45,10 @@ Crafty.c("Cell", {
             }
             this.textColor(TEXT_COLORS[index], 1);
             this.text(text);
+        } else if (this._type == CELL_TYPE_FINISH) {
+            if(!this.has("sprite_portal")) {
+                this.addComponent("sprite_portal");
+            }
         }
         return this;
     },
