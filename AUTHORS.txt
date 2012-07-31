@@ -8,11 +8,14 @@ Asset attribution
 =================
 
 Assets were authored by the following people:
+Daniel Eddeland
+ - farming_fishing.png
+
+Johann CHARLOT
+ - tileset01.png
+
 Lanea Zimmerman (AKA Sharm)
  - hole.png
 
 Radomir Dopieralski
  - abi-big.png
-
-Daniel Eddeland
- - farming_fishing.png

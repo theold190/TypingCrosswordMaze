@@ -27,3 +27,30 @@ Crafty.sprite(80, "res/treasure_80.png", {
 Crafty.sprite(400, "res/background.png", {
     sprite_background: [0, 0]
 });
+Crafty.sprite(80, "res/grass_empty_80.png", {
+    sprite_grass: [0, 0]
+});
+Crafty.sprite(80, "res/grass_leaves_80.png", {
+    sprite_grass_1: [0, 0]
+});
+Crafty.sprite(80, "res/grass_leaves2_80.png", {
+    sprite_grass_2: [0, 0]
+});
+Crafty.sprite(80, "res/grass_leaves3_80.png", {
+    sprite_grass_3: [0, 0]
+});
+Crafty.sprite(80, "res/grass_star_80.png", {
+    sprite_grass_4: [0, 0]
+});
+Crafty.sprite(80, "res/grass_stones_80.png", {
+    sprite_grass_5: [0, 0]
+});
+Crafty.sprite(80, "res/grass_stones2_80.png", {
+    sprite_grass_6: [0, 0]
+});
+Crafty.sprite(80, "res/grass_plants_80.png", {
+    sprite_grass_7: [0, 0]
+});
+Crafty.sprite(80, "res/grass_plants2_80.png", {
+    sprite_grass_8: [0, 0]
+});
