@@ -74,7 +74,12 @@ Crafty.c("IntermediateScreen", {
             text.text(msg).attr({y:SCREEN_HEIGHT/2-text._textSize, w:SCREEN_WIDTH});
         }
         if (stats.taskLeft != undefined) {
-            var msg = "Left: " + convertTaskToString(stats.taskLeft);
+            var msg = "";
+            if (isListEmpty(stats.taskLeft)) {
+                msg = "Task completed!";
+            } else {
+                msg = "Left: " + convertTaskToString(stats.taskLeft);
+            }
             var text = Crafty.e("ScreenText");
             text.text(msg).attr({y:SCREEN_HEIGHT-text._textSize, w:SCREEN_WIDTH});
         }
