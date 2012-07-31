@@ -11,11 +11,13 @@
 </head>
 <body>
   <script type="text/javascript">
-    function initCrafty() {
-        Crafty.init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    }
     window.onload = (function() {
+        var qsParm = new Array();
+        qsParm['debug'] = 0;
+        parseQueryString(qsParm);
         initCrafty();
+
+        DEBUG=qsParm['debug'] != 0;
         var game = Crafty.e("Game")._startGame(NUMBER_GAMES);
     });
   </script>

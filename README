@@ -17,4 +17,6 @@ Please check next links:
 Building and running
 --------------------
 
-Just open index.html file in your web browser.
+Just open "index.html" file in your web browser.
+
+To enable movements with arrow keys run "index.html?debug=0".

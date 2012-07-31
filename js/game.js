@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 var NUMBER_GAMES = 3;
+var DEBUG = 0;
 
 var NUMBER_GOAL_LETTERS = 5;
 

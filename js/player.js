@@ -19,8 +19,6 @@ var PLAYER_ZORDER = 1;
 var STEP_WIDTH  = CELL_WIDTH,
     STEP_HEIGHT = CELL_HEIGHT;
 
-var DEBUG = 0;
-
 Crafty.c("Player", {
     init: function() {
         this.addComponent("2D, DOM, KeyboardEvent, sprite_hero");
