@@ -25,7 +25,7 @@ var BOARD_LETTERS = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O"
 // This way it will be easier to search cells
 Crafty.c("Cell", {
     init: function() {
-        this.addComponent("2D, Canvas");
+        this.addComponent("2D, DOM");
         this.attr({w:CELL_WIDTH, h:CELL_HEIGHT});
     },
     _type: CELL_TYPE_SOLID,
@@ -41,6 +41,7 @@ Crafty.c("Cell", {
             var index = this._type - CELL_TYPE_NORMAL;
             if(!this.has("Text")) {
                 this.addComponent("Text");
+                this.css({textAlign: 'center'});
                 this.textFont({size: '50px', family: 'Arial'});
             }
             this.textColor(TEXT_COLORS[index], 1);
