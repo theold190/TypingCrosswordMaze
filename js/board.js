@@ -96,7 +96,7 @@ Crafty.c("Board", {
     //CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_SOLID],
     CELL_TYPE: [CELL_TYPE_NORMAL, CELL_TYPE_GOLDEN, CELL_TYPE_DANGER],
     init: function() {
-        this.addComponent("2D, Canvas");
+        this.addComponent("2D, Canvas, sprite_background");
         this.attr({x: BOARD_LEFT, y: BOARD_TOP, w:BOARD_WIDTH, h:BOARD_HEIGHT});
         this._setupBoard(this.x, this.y, BOARD_ROWS, BOARD_COLS, CELL_WIDTH, CELL_HEIGHT);
     },
