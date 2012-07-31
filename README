@@ -21,4 +21,4 @@ To play the game open "index.html" file in your web browser
 (or http://www.forknights.com/games/CrosswordMaze).
 
 To enable movements with arrow keys run "index.html?debug=0"
-(or http://www.forknights.com/games/CrosswordMaze/index.html?debug=0).
+(or http://www.forknights.com/games/CrosswordMaze/index.html?debug=1).
