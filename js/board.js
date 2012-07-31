@@ -10,10 +10,11 @@ var BOARD_WIDTH  = BOARD_COLS*CELL_WIDTH,
     BOARD_HEIGHT = BOARD_ROWS*CELL_HEIGHT;
 
 var CELL_TYPE_FINISH = 0,
-    CELL_TYPE_SOLID  = 1,
-    CELL_TYPE_NORMAL = 2,
-    CELL_TYPE_GOLDEN = 3,
-    CELL_TYPE_DANGER = 4;
+    CELL_TYPE_PORTAL = 1;
+    CELL_TYPE_SOLID  = 2,
+    CELL_TYPE_NORMAL = 3,
+    CELL_TYPE_GOLDEN = 4,
+    CELL_TYPE_DANGER = 5;
 
 var TEXT_COLOR_NORMAL = '#000000',
     TEXT_COLOR_GOLDEN = '#FFD700',
@@ -47,9 +48,15 @@ Crafty.c("Cell", {
             this.textColor(TEXT_COLORS[index], 1);
             this.text(text);
         } else if (this._type == CELL_TYPE_FINISH) {
-            if(!this.has("sprite_portal")) {
-                this.addComponent("sprite_portal");
+            if(!this.has("Sprite")) {
+                this.removeComponent("Sprite");
             }
+            this.addComponent("sprite_finish");
+        } else if (this._type == CELL_TYPE_PORTAL) {
+            if(this.has("Sprite")) {
+                this.removeComponent("Sprite");
+            }
+            this.addComponent("sprite_portal");
         }
         return this;
     },
@@ -83,7 +90,8 @@ Crafty.c("Cell", {
         if (key == Crafty.keys[this._text]) {
             return true;
         }
-        if (this._type == CELL_TYPE_FINISH
+        if ((this._type == CELL_TYPE_FINISH
+            || this._type == CELL_TYPE_PORTAL)
             && (key == Crafty.keys['SPACE']
                 || key == Crafty.keys['ENTER']))
         {
@@ -127,9 +135,13 @@ Crafty.c("Board", {
             }
         }
     },
-    // This method should be in Cell, but in that case I have refresh problems
+    // This methods should be in Cell, but in that case I have refresh problems
     // if golden letter is removed from the left. Finish is refreshed
     // partially - to the width of the text (" ") in it.
+    _setAsPortal: function(cell) {
+        var newCell = Crafty.e("Cell")._makeCell(cell.x, cell.y, CELL_TYPE_PORTAL, cell.text());
+        this._replaceCell(cell, newCell);
+    },
     _setAsFinish: function(cell) {
         var newCell = Crafty.e("Cell")._makeCell(cell.x, cell.y, CELL_TYPE_FINISH, cell.text());
         this._replaceCell(cell, newCell);

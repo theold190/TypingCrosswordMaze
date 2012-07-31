@@ -80,7 +80,11 @@ Crafty.c("Game", {
         this._setBoard(board);
 
         var finishPosition = board._getRandomCell();
-        board._setAsFinish(finishPosition);
+        if(this._isFinalGame()) {
+            board._setAsFinish(finishPosition);
+        } else {
+            board._setAsPortal(finishPosition);
+        }
 
         var startPosition = board._getRandomCell(CELL_TYPE_NORMAL);
 
@@ -119,7 +123,8 @@ Crafty.c("Game", {
             return;
         }
         var cell = game._board._getCell(x, y);
-        if (cell._type == CELL_TYPE_FINISH) {
+        if (cell._type == CELL_TYPE_FINISH
+            || cell._type == CELL_TYPE_PORTAL) {
             game._currentGame++;
             game._clearAll();
             if (game._isGameComplete()) {
@@ -151,6 +156,9 @@ Crafty.c("Game", {
     },
     _isGameComplete: function() {
         return this._totalGames <= this._currentGame;
+    },
+    _isFinalGame: function() {
+        return this._totalGames == this._currentGame+1;
     },
     _generateTask: function() {
         var num = Crafty.math.randomNumber(3, NUMBER_GOAL_LETTERS);
