@@ -19,7 +19,7 @@ var PLAYER_ZORDER = 1;
 var STEP_WIDTH  = CELL_WIDTH,
     STEP_HEIGHT = CELL_HEIGHT;
 
-var DEBUG = 1;
+var DEBUG = 0;
 
 Crafty.c("Player", {
     init: function() {
