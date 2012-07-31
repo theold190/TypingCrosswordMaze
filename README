@@ -1,7 +1,22 @@
-Crossword Maze game prototype was created at a summer DreamCode2012 event. It was created during 3 days with use of Crafty javascript game engine. The idea of the game is to practice your typing skills and get some entertainment. Prototype lacks music, graphics, tutorial and some usefull features, but it has all gameplay and game mechanics in it. Go on with the instruction, and try to get a highest score!
+==============
+Crossword Maze
+==============
 
-You can play game here http://theold190.github.com/TypingCrosswordMaze/.
+Crossword Maze is a javascript game where you practice typing while
+having fun. It was created during a DreamCode2012 event and later
+adapted to Liberation Pixel Cup. Game is built with use of CraftyJS
+game engine.
 
-Resources from next artists were used in the game (from http://lpc.opengameart.org/):
-LPC's base assets
-Radomir Dopieralski
+Please check a tutorial page
+http://theold190.github.com/TypingCrosswordMaze.
+
+Please check next links:
+ - Games tutorial: http://theold190.github.com/TypingCrosswordMaze
+ - Projects page: https://github.com/theold190/TypingCrosswordMaze
+ - Liberation Pixel Cup: http://lpc.opengameart.org
+ - CraftyJS game engine: http://craftyjs.com
+
+Building and running
+--------------------
+
+Just open index.html file in your web browser.
