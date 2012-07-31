@@ -28,7 +28,7 @@ Crafty.c("Cell", {
         this.addComponent("2D, DOM");
         this.attr({w:CELL_WIDTH, h:CELL_HEIGHT});
     },
-    _type: CELL_TYPE_SOLID,
+    _type: CELL_TYPE_NORMAL,
     _makeCell: function(x, y, type, text) {
         this.attr({x: x, y: y});
         this._type = type;
