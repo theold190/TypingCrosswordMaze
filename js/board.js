@@ -65,13 +65,14 @@ Crafty.c("Cell", {
             this.textColor(TEXT_COLORS[index], 1);
             this.text(text);
 
-            if(!this.has("Sprite")) {
-                if(Crafty.math.randomInt(1,100) < 40) {
-                    this.addComponent("sprite_grass_"+Crafty.math.randomInt(1,8));
-                } else {
-                    this.addComponent("sprite_grass");
-                }
-            }
+// Disabled due to performace issues
+//            if(!this.has("Sprite")) {
+//                if(Crafty.math.randomInt(1,100) < 40) {
+//                    this.addComponent("sprite_grass_"+Crafty.math.randomInt(1,8));
+//                } else {
+//                    this.addComponent("sprite_grass");
+//                }
+//            }
         } else if (this._type == CELL_TYPE_FINISH) {
             if(this.has("Sprite")) {
                 this.removeComponent("Sprite");
